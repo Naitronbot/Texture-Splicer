@@ -1,5 +1,0 @@
-[build]
-target = "armv7-unknown-linux-gnueabihf"
-
-[target.armv7-unknown-linux-gnueabihf]
-linker = "C:/Users/lackp/Desktop/gcc-linaro-5.5.0-2017.10-i686-mingw32_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc.exe"
