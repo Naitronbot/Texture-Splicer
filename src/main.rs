@@ -50,6 +50,11 @@ fn get_palette(img: &image::RgbaImage) -> Vec<Rgba<u8>> {
 
     // Get each pixel of the image, and insert it into the array (ensuring the array stays sorted)
     for px in img.enumerate_pixels() {
+        // Don't include pixels with zero alpha
+        if px.2[3] == 0 {
+            continue;
+        }
+
         let pixel_lum = get_lum(&px.2);
         let insert_location = lum.partition_point(|&x| x < pixel_lum);
 
@@ -89,7 +94,13 @@ fn merge_palette(img: image::RgbaImage, texture: &Vec<Rgba<u8>>, palette: &Vec<R
     if interpolate {
         for y in 0..height {
             for x in 0..width {
-                let current_pixel = img.get_pixel(x, y).clone();
+                let current_pixel = img.get_pixel(x, y);
+
+                // Skip pixels with zero alpha
+                if current_pixel[3] == 0 {
+                    continue;
+                }
+
                 let pixel_index = conversion_constant * find_index(texture, &current_pixel) as f32;
                 let interpolation_factor = pixel_index % 1.0;
                 if interpolation_factor == 0.0 {
@@ -108,6 +119,12 @@ fn merge_palette(img: image::RgbaImage, texture: &Vec<Rgba<u8>>, palette: &Vec<R
         for y in 0..height {
             for x in 0..width {
                 let current_pixel = img.get_pixel(x, y);
+
+                // Skip pixels with zero alpha
+                if current_pixel[3] == 0 {
+                    continue;
+                }
+                
                 let pixel_index = (conversion_constant * find_index(texture, &current_pixel) as f32).round() as usize;
                 let mut new_pixel = *palette.get(pixel_index).unwrap();
                 new_pixel[3] = current_pixel[3];
@@ -119,6 +136,7 @@ fn merge_palette(img: image::RgbaImage, texture: &Vec<Rgba<u8>>, palette: &Vec<R
     return new_image;
 }
 
+// Finds the index of a specific color in a vector
 fn find_index(vector: &Vec<Rgba<u8>>, value: &Rgba<u8>) -> usize {
     for i in 0..vector.len() {
         if value.eq(vector.get(i).unwrap()) {
@@ -128,6 +146,7 @@ fn find_index(vector: &Vec<Rgba<u8>>, value: &Rgba<u8>) -> usize {
     return usize::MAX;
 }
 
+// Linearly interpolates between two colors with gamma correction 
 fn color_interpolate(px1: &Rgba<u8>, px2: &Rgba<u8>, factor: f32) -> Rgba<u8> {
     let gamma_r1 = f32::powf(px1[0] as f32, 2.2);
     let gamma_g1 = f32::powf(px1[1] as f32, 2.2);
