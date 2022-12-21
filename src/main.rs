@@ -101,7 +101,7 @@ fn merge_palette(img: image::RgbaImage, texture: &Vec<Rgba<u8>>, palette: &Vec<R
                     continue;
                 }
 
-                let pixel_index = conversion_constant * find_index(texture, &current_pixel) as f32;
+                let pixel_index = f32::min(conversion_constant * find_index(texture, &current_pixel) as f32, (palette.len() - 1) as f32);
                 let interpolation_factor = pixel_index % 1.0;
                 if interpolation_factor == 0.0 {
                     let mut new_pixel = *palette.get(pixel_index as usize).unwrap();
